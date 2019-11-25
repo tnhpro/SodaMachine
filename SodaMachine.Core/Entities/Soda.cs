@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SodaMachine.Core.Resources;
+using System;
 
 namespace SodaMachine.Core.Entities
 {
@@ -6,7 +7,7 @@ namespace SodaMachine.Core.Entities
     {
         public Soda(string name, int price, int quantity)
         {
-            Name = name;
+            Name = name; 
             Price = price;
             Quantity = quantity;
         }
@@ -17,30 +18,32 @@ namespace SodaMachine.Core.Entities
 
         #region Quantity
 
-        public string addQuantity(int amount)
+        public string AddQuantity(int amount)
         {
-            if(amount <= 0)
+            var minAmount = 1;
+            if(amount < minAmount)
             {
-                return $"Can't add amount {amount}";
+                return string.Format(Messages.CantAddAmount, amount);
             }
 
             Quantity += amount;
-            return $"Quantity of {Name} is now {Quantity}";
+            return string.Format(Messages.QuantityChanged, Name, Quantity);
         }
 
         #endregion
 
         #region Price
 
-        public string ChangePrice(int price)
+        public string ChangePrice(int newPrice)
         {
-            if(price <= 0)
+            var minPrice = 1;
+            if(newPrice < minPrice)
             {
-                return "Price must be greater than 0";
+                return string.Format(Messages.PriceGreaterThan, minPrice);
             }
-            Price = price;
+            Price = newPrice;
 
-            return $"Price on {Name} was changed to {Price}";
+            return string.Format(Messages.PriceChanged, Name, Price);
         }
 
         #endregion
@@ -52,15 +55,16 @@ namespace SodaMachine.Core.Entities
                 var moneyLeft = money - Price;
                 Quantity--;
                 money = 0;
-                return $"Giving {Name} out.\nGiving {moneyLeft} out in change";
+                return $"{string.Format(Messages.GivingSodaOut, Name)}\n" +
+                        $"{string.Format(Messages.GivingChangeOut, moneyLeft)}";
             }
             else if (Quantity == 0)
             {
-                return $"No {Name} left";
+                return string.Format(Messages.NoSodaLeft, Name);
             }
             else
             {
-                return $"Need " + (Price - money) + " more";
+                return string.Format(Messages.NotEnoughMoney, Price-money);
             }
         }
 
@@ -69,11 +73,11 @@ namespace SodaMachine.Core.Entities
             if (Quantity > 0)
             {
                 Quantity--;
-                return $"Giving {Name} out";
+                return string.Format(Messages.GivingSodaOut, Name);
             }
             else
             {
-                return $"No {Name} left";
+                return string.Format(Messages.NoSodaLeft, Name);
             }
         }
     }
