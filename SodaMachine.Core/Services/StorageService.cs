@@ -11,14 +11,9 @@ namespace SodaMachine.Core.Services
     {
         private List<Soda> _inventory;
 
-        public StorageService()
+        public StorageService(List<Soda> inventory)
         {
-            _inventory = new List<Soda>
-            {
-                new Soda("coke", 20, 5),
-                new Soda("sprite", 15, 3),
-                new Soda("fanta", 15, 3)
-            };
+            _inventory = inventory;
         }
 
         public bool AddInventory(Soda soda)

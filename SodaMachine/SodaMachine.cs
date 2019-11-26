@@ -13,7 +13,15 @@ namespace SodaMachine
 
         public SodaMachine()
         {
-            _storageService = new StorageService();
+            _storageService = new StorageService
+            (
+                new List<Soda>
+                {
+                    new Soda("coke", 20, 5),
+                    new Soda("sprite", 15, 3),
+                    new Soda("fanta", 15, 3)
+                }
+            );
         }
         /// <summary>
         /// This is the starter method for the machine
@@ -25,6 +33,7 @@ namespace SodaMachine
             {
                 Console.WriteLine("\n\nAvailable commands:");
                 Console.WriteLine("admin - Gives access to adding new inventory");
+                Console.WriteLine("inventory - Show the inventory in the Soda machine");
                 Console.WriteLine("insert (money) - Money put into money slot");
                 Console.WriteLine("order ({0}) - Order from machines buttons", _storageService.GetInventoryNames());
                 Console.WriteLine("sms order (coke, sprite, fanta) - Order sent by sms");
@@ -40,6 +49,11 @@ namespace SodaMachine
                     Admin();
                 }
 
+                if (input.StartsWith("inventory"))
+                {
+                    ShowInventory();
+                }
+
                 if (input.StartsWith("insert"))
                 {
                     Insert(input);   
@@ -49,6 +63,7 @@ namespace SodaMachine
                 {
                     Order(input); 
                 }
+
                 if (input.StartsWith("sms order"))
                 {
                     SmsOrder(input);   
@@ -66,40 +81,24 @@ namespace SodaMachine
         {
             //Add to inventory
             Console.WriteLine("\n\nAvailable commands for Admin:");
-            Console.WriteLine("1. Add new soda");
+            Console.WriteLine("1. Show inventory");
+            Console.WriteLine("2. Add new soda");
+            Console.WriteLine("3. Change price of soda");
+            Console.WriteLine("4. Add quantity of soda");
+            Console.WriteLine("Hit return to go back");
             var adminInput = Console.ReadLine();
             if (adminInput.StartsWith("1"))
             {
+                ShowInventory();
+                Admin();
+            }
+
+            if (adminInput.StartsWith("2"))
+            {
                 Console.WriteLine("Name of soda:");
                 var sodaName = Console.ReadLine();
-
-                bool sodaPriceValid = false;
-                int sodaPrice = 0;
-                while (!sodaPriceValid)
-                {
-                    Console.WriteLine("Price of soda (only valid numbers, greater than 0):");
-                    if (int.TryParse(Console.ReadLine(), out sodaPrice))
-                    {
-                        if (sodaPrice > 0)
-                        {
-                            sodaPriceValid = true;
-                        }
-                    }
-                }
-
-                bool sodaQuantityValid = false;
-                int sodaQuantity = 0;
-                while (!sodaQuantityValid)
-                {
-                    Console.WriteLine("Quantity of soda (only valid numbers, greater than 0):");
-                    if (int.TryParse(Console.ReadLine(), out sodaQuantity))
-                    {
-                        if (sodaQuantity > 0)
-                        {
-                            sodaQuantityValid = true;
-                        }
-                    }
-                }
+                var sodaPrice = CheckForValidNumber("Price of soda (only valid numbers, greater than 0):");
+                var sodaQuantity = CheckForValidNumber("Quantity of soda (only valid numbers, greater than 0):");
 
                 var soda = new Soda(sodaName, sodaPrice, sodaQuantity);
                 if (_storageService.AddInventory(soda))
@@ -110,7 +109,81 @@ namespace SodaMachine
                 {
                     Console.WriteLine("Soda {0} could not be added", soda.Name);
                 }
+                Admin();
             }
+
+            if (adminInput.StartsWith("3"))
+            {
+                Console.WriteLine("Name of soda:");
+                var sodaName = Console.ReadLine();
+
+                var soda = _storageService.GetSoda(sodaName);
+
+                if (soda != null)
+                {
+                    var sodaPrice = CheckForValidNumber("New price (only valid numbers, greater than 0):");
+ 
+                    Console.WriteLine(soda.ChangePrice(sodaPrice));
+                }
+                else
+                {
+                    Console.WriteLine("No such soda");
+                }
+                Admin();
+            }
+            
+            if (adminInput.StartsWith("4"))
+            {
+                Console.WriteLine("Name of soda:");
+                var sodaName = Console.ReadLine();
+                var soda = _storageService.GetSoda(sodaName);
+
+                if (soda != null)
+                {
+                    var sodaQuantity = CheckForValidNumber("Add amaount (only valid numbers, greater than 0):");
+                    
+                    Console.WriteLine(soda.AddQuantity(sodaQuantity));
+                }
+                else
+                {
+                    Console.WriteLine("No such soda");
+                }
+                Admin();
+            }
+        }
+
+        //Checking if input number is valid
+        private int CheckForValidNumber(string outputText)
+        {
+            bool validNumber = false;
+            int number = 0;
+            while (!validNumber)
+            {
+                Console.WriteLine(outputText);
+                if (int.TryParse(Console.ReadLine(), out number))
+                {
+                    if (number > 0)
+                    {
+                        validNumber = true;
+                    }
+                }
+            }
+
+            return number;
+        }
+
+        //Show the inventory
+        private void ShowInventory()
+        {
+            var inventory = _storageService.GetInventory();
+            Console.WriteLine("--------------------Soda inventory----------------------");
+            Console.WriteLine();
+            foreach (var soda in inventory)
+            {                                             
+                Console.WriteLine(soda.ToString());
+                Console.WriteLine();
+            }
+            Console.WriteLine("--------------------Soda inventory----------------------");
         }
 
         //Insert money

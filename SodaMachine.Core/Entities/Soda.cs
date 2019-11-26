@@ -18,6 +18,7 @@ namespace SodaMachine.Core.Entities
 
         #region Quantity
 
+        //Add amount of soda
         public string AddQuantity(int amount)
         {
             var minAmount = 1;
@@ -34,6 +35,7 @@ namespace SodaMachine.Core.Entities
 
         #region Price
 
+        //Change the price of soda
         public string ChangePrice(int newPrice)
         {
             var minPrice = 1;
@@ -48,6 +50,7 @@ namespace SodaMachine.Core.Entities
 
         #endregion
 
+        //Try to buy a soda
         public string Buy(ref int money)
         {
             if (money >= Price && Quantity > 0)
@@ -68,6 +71,7 @@ namespace SodaMachine.Core.Entities
             }
         }
 
+        //Sms buy a soda
         public string SmsBuy()
         {
             if (Quantity > 0)
@@ -79,6 +83,11 @@ namespace SodaMachine.Core.Entities
             {
                 return string.Format(Messages.NoSodaLeft, Name);
             }
+        }
+
+        public override string ToString()
+        {
+            return $"Name: {Name}, Price: {Price}, Quantity: {Quantity}";
         }
     }
 }
